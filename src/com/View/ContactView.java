@@ -4,6 +4,8 @@ import com.Model.Contact;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 
 public class ContactView extends JFrame {
@@ -15,6 +17,8 @@ public class ContactView extends JFrame {
     private JLabel lblInputError;
     private JTable tblContacts;
     private JButton btnClear;
+    private JTextField tfFilter;
+    private JButton btnSearch;
 
     private CustomContactTableModel tableModel;
     private ArrayList<ContactViewListener> listeners;
@@ -28,6 +32,23 @@ public class ContactView extends JFrame {
         setSize(800, 520);
         setResizable(true);
         setLocationRelativeTo(null);
+
+        tfFilter.setText("Escribe algo...");
+        tfFilter.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if(tfFilter.getText().equals("Escribe algo...")){
+                    tfFilter.setText("");
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e){
+                if(tfFilter.getText().isEmpty()){
+                    tfFilter.setText("Escribe algo...");
+                }
+            }
+        });
 
         tableModel = new CustomContactTableModel();
         tblContacts.setModel(tableModel);
@@ -46,6 +67,12 @@ public class ContactView extends JFrame {
                 listener.onClearContactListRequested();
             }
         });
+
+        btnSearch.addActionListener(e -> {
+            for(ContactViewListener listener : listeners){
+                listener.onSearchContactListRequested();
+            }
+        });
     }
 
     public void addContactViewListener(ContactViewListener listener){
@@ -57,11 +84,7 @@ public class ContactView extends JFrame {
     public void displayContactTable(ArrayList<Contact> contacts){
         tableModel.setContactsOnTable(contacts);
 
-        if(tblContacts.getRowCount() == 1){
-            btnClear.setEnabled(true);
-        } else if(tblContacts.getRowCount() == 0){
-            btnClear.setEnabled(false);
-        }
+        btnClear.setEnabled(tblContacts.getRowCount() > 0);
     }
 
     public String getTfName(){
@@ -74,6 +97,14 @@ public class ContactView extends JFrame {
 
     public String getTfMail(){
         return tfMail.getText();
+    }
+
+    public String getTfFilter(){
+        return tfFilter.getText().equals("Escribe algo...") ? null : tfFilter.getText();
+    }
+
+    public void cleanTfFilter(){
+        tfFilter.setText("Escribe algo...");
     }
 
     public void clearInputFields() {

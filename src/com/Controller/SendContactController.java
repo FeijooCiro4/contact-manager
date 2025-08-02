@@ -111,6 +111,19 @@ public class SendContactController implements ContactModelListener, ContactViewL
                 "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
         if(confirm == JOptionPane.YES_OPTION){
             model.clearContactList();
+            view.cleanTfFilter();
+        }
+    }
+
+    @Override
+    public void onSearchContactListRequested() {
+        String valueSearched = view.getTfFilter();
+
+        if(valueSearched != null){
+            model.filterContactsOfContactList(valueSearched);
+            model.setFilterActive(true);
+        } else {
+            model.setFilterActive(false);
         }
     }
 

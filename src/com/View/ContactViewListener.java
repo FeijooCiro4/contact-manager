@@ -5,4 +5,5 @@ public interface ContactViewListener {
     void onDeleteContactRequested(int idContact);
     void onChangeContactRequested(int idContact);
     void onClearContactListRequested();
+    void onSearchContactListRequested();
 }

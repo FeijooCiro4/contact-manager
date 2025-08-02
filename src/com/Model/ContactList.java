@@ -4,11 +4,34 @@ import java.util.ArrayList;
 
 public class ContactList{
     private ArrayList<Contact> contacts;
+    private ArrayList<Contact> contactsFilter;
     private ArrayList<ContactModelListener> listeners;
+    private boolean isFilterActive;
 
     public ContactList(){
         this.contacts = new ArrayList<>();
+        this.contactsFilter = new ArrayList<>();
         this.listeners = new ArrayList<>();
+        this.isFilterActive = false;
+    }
+
+    public void setFilterActive(boolean isActive){
+        this.isFilterActive = isActive;
+        notifyListeners();
+    }
+
+    public void filterContactsOfContactList(String valueSearched){
+        clearFilterOldElements();
+        for(Contact contact : contacts){
+            if(contact.getName().contains(valueSearched) || contact.getMail().contains(valueSearched) || contact.getPhone().contains(valueSearched)){
+                this.contactsFilter.add(contact);
+            }
+        }
+        notifyListeners();
+    }
+
+    public void clearFilterOldElements(){
+        this.contactsFilter.clear();
     }
 
     public ArrayList<Contact> getContactList(){
@@ -41,6 +64,20 @@ public class ContactList{
     }
 
     public boolean modifyContactFromList(String name, String phone, String mail, int idContactToSearch){
+        boolean modificationSuccessful, modificationFilteredListSuccessful;
+
+        modificationSuccessful = changeOriginalContactList(name, phone, mail, idContactToSearch);
+
+        if(isFilterActive){
+            modificationFilteredListSuccessful = changeFilteredContactList(name, phone, mail, idContactToSearch);
+            if(!modificationFilteredListSuccessful) modificationSuccessful = false;
+        }
+
+        notifyListeners();
+        return modificationSuccessful;
+    }
+
+    private boolean changeOriginalContactList(String name, String phone, String mail, int idContactToSearch){
         boolean modificationSuccessful;
 
         try {
@@ -59,11 +96,46 @@ public class ContactList{
             modificationSuccessful = false;
         }
 
-        notifyListeners();
+        return modificationSuccessful;
+    }
+
+    private boolean changeFilteredContactList(String name, String phone, String mail, int idContactToSearch){
+        boolean modificationSuccessful;
+
+        try {
+            int indexOfContactSearched = contactsFilter.getFirst().indexOfContactFromList(contactsFilter, idContactToSearch);
+
+            if (indexOfContactSearched >= 0) {
+                Contact contact = new Contact(name, phone, mail);
+                contact.setExistingIdContact(idContactToSearch);
+
+                this.contactsFilter.set(indexOfContactSearched, contact);
+                modificationSuccessful = true;
+            } else {
+                modificationSuccessful = false;
+            }
+        } catch (IndexOutOfBoundsException e){
+            modificationSuccessful = false;
+        }
+
         return modificationSuccessful;
     }
 
     public boolean deleteContactFromList(int idContactToDelete){
+        boolean deletionSuccessful, deletionOfElementFromFilteredListSuccessful;
+
+        deletionSuccessful = deleteOriginalContactList(idContactToDelete);
+
+        if(isFilterActive){
+            deletionOfElementFromFilteredListSuccessful = deleteFilteredContactList(idContactToDelete);
+            if(!deletionOfElementFromFilteredListSuccessful) deletionSuccessful = false;
+        }
+
+        notifyListeners();
+        return deletionSuccessful;
+    }
+
+    private boolean deleteOriginalContactList(int idContactToDelete){
         boolean deletionSuccessful;
 
         try {
@@ -79,13 +151,48 @@ public class ContactList{
             deletionSuccessful = false;
         }
 
-        notifyListeners();
+        return deletionSuccessful;
+    }
+
+    private boolean deleteFilteredContactList(int idContactToDelete){
+        boolean deletionSuccessful;
+
+        try {
+            int indexOfContactSearched = contactsFilter.getFirst().indexOfContactFromList(contactsFilter, idContactToDelete);
+
+            if (indexOfContactSearched >= 0) {
+                this.contactsFilter.remove(indexOfContactSearched);
+                deletionSuccessful = true;
+            } else {
+                deletionSuccessful = false;
+            }
+        } catch (IndexOutOfBoundsException e){
+            deletionSuccessful = false;
+        }
+
         return deletionSuccessful;
     }
 
     public void clearContactList(){
-        this.contacts.clear();
-        notifyListeners();
+        if(isFilterActive){
+            deleteElementsOfListCleanedOnFilteredList();
+            this.contactsFilter.clear();
+            setFilterActive(false);
+        } else {
+            this.contacts.clear();
+            notifyListeners();
+        }
+    }
+
+    private void deleteElementsOfListCleanedOnFilteredList(){
+        for(int i=0; i<contacts.size(); i++){
+            for (Contact contact : contactsFilter) {
+                if (contacts.get(i).equals(contact)) {
+                    this.contacts.remove(i);
+                    break;
+                }
+            }
+        }
     }
 
     public String getListOfContactList(){
@@ -102,7 +209,13 @@ public class ContactList{
     }
 
     public void notifyListeners(){
-        ArrayList<Contact> currentContacts = new ArrayList<>(contacts);
+        ArrayList<Contact> currentContacts;
+        if(isFilterActive){
+            currentContacts = new ArrayList<>(contactsFilter);
+        } else {
+            currentContacts = new ArrayList<>(contacts);
+        }
+
         for(ContactModelListener listener : listeners){
             listener.onContactChanged(currentContacts);
         }
