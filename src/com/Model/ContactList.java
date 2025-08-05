@@ -1,6 +1,7 @@
 package com.Model;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ContactList{
     private ArrayList<Contact> contacts;
@@ -58,9 +59,34 @@ public class ContactList{
 
     public void addContact(String name, String phone, String mail) {
         Contact contact = new Contact(name, phone, mail);
-        contact.setIdContact(contacts);
+        setIdContact(contact);
         this.contacts.add(contact);
         notifyListeners();
+    }
+
+    private void setIdContact(Contact contact){
+        int idTemp;
+        boolean elementInList;
+
+        do{
+            Random rand = new Random();
+            idTemp = Math.abs(rand.nextInt());
+            elementInList = isContactInList(idTemp);
+        } while(elementInList);
+
+        contact.setExistingIdContact(idTemp);
+    }
+
+    public boolean isContactInList(int idContactToSearch){
+        if(contacts != null) {
+            for (Contact contact : contacts) {
+                if (contact.getIdContact() == idContactToSearch) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     public boolean modifyContactFromList(String name, String phone, String mail, int idContactToSearch){
@@ -81,7 +107,7 @@ public class ContactList{
         boolean modificationSuccessful;
 
         try {
-            int indexOfContactSearched = contacts.getFirst().indexOfContactFromList(contacts, idContactToSearch);
+            int indexOfContactSearched = indexOfContactFromList(contacts, idContactToSearch);
 
             if (indexOfContactSearched >= 0) {
                 Contact contact = new Contact(name, phone, mail);
@@ -103,7 +129,7 @@ public class ContactList{
         boolean modificationSuccessful;
 
         try {
-            int indexOfContactSearched = contactsFilter.getFirst().indexOfContactFromList(contactsFilter, idContactToSearch);
+            int indexOfContactSearched = indexOfContactFromList(contactsFilter, idContactToSearch);
 
             if (indexOfContactSearched >= 0) {
                 Contact contact = new Contact(name, phone, mail);
@@ -139,7 +165,7 @@ public class ContactList{
         boolean deletionSuccessful;
 
         try {
-            int indexOfContactSearched = contacts.getFirst().indexOfContactFromList(contacts, idContactToDelete);
+            int indexOfContactSearched = indexOfContactFromList(contacts, idContactToDelete);
 
             if (indexOfContactSearched >= 0) {
                 this.contacts.remove(indexOfContactSearched);
@@ -158,7 +184,7 @@ public class ContactList{
         boolean deletionSuccessful;
 
         try {
-            int indexOfContactSearched = contactsFilter.getFirst().indexOfContactFromList(contactsFilter, idContactToDelete);
+            int indexOfContactSearched = indexOfContactFromList(contactsFilter, idContactToDelete);
 
             if (indexOfContactSearched >= 0) {
                 this.contactsFilter.remove(indexOfContactSearched);
@@ -171,6 +197,18 @@ public class ContactList{
         }
 
         return deletionSuccessful;
+    }
+
+    private int indexOfContactFromList(ArrayList<Contact> contactList, int idContactToSearch){
+        if(contacts != null) {
+            for (Contact contact : contactList) {
+                if (contact.getIdContact() == idContactToSearch) {
+                    return contacts.indexOf(contact);
+                }
+            }
+        }
+
+        return -1;
     }
 
     public void clearContactList(){
@@ -186,10 +224,9 @@ public class ContactList{
 
     private void deleteElementsOfListCleanedOnFilteredList(){
         for(int i=0; i<contacts.size(); i++){
-            for (Contact contact : contactsFilter) {
-                if (contacts.get(i).equals(contact)) {
+            for (Contact contactFiltered : contactsFilter) {
+                if (contacts.get(i).getIdContact() == contactFiltered.getIdContact()) {
                     this.contacts.remove(i);
-                    break;
                 }
             }
         }
