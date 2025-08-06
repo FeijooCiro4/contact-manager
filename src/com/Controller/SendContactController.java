@@ -20,28 +20,28 @@ public class SendContactController implements ContactModelListener, ContactViewL
         this.model.addContactListener(this);
         this.view.addContactViewListener(this);
 
-        view.displayContactTable(model.getContactList());
+        view.getTablePanel().displayContactTable(model.getContactList());
     }
 
     @Override
     public void onContactChanged(ArrayList<Contact> contacts) {
-        view.displayContactTable(contacts);
+        view.getTablePanel().displayContactTable(contacts);
     }
 
     @Override
     public void onAddContactRequested() {
-        String txtName = view.getTfName();
-        String txtPhone = view.getTfPhone();
-        String txtMail = view.getTfMail();
+        String txtName = view.getFormPanel().getTfName();
+        String txtPhone = view.getFormPanel().getTfPhone();
+        String txtMail = view.getFormPanel().getTfMail();
 
         if(!validData(txtName, txtPhone, txtMail)){
-            this.view.setTextErrorToLabelInput();
+            this.view.getFormPanel().setTextErrorToLabelInput();
             return;
         }
 
-        this.view.setTextNotErrorToLabelInput();
+        this.view.getFormPanel().setTextNotErrorToLabelInput();
         this.model.addContact(txtName, txtPhone, txtMail);
-        view.clearInputFields();
+        view.getFormPanel().clearInputFields();
     }
 
     @Override
@@ -111,13 +111,13 @@ public class SendContactController implements ContactModelListener, ContactViewL
                 "Confirmar Eliminación", JOptionPane.YES_NO_OPTION);
         if(confirm == JOptionPane.YES_OPTION){
             model.clearContactList();
-            view.cleanTfFilter();
+            view.getTablePanel().cleanTfFilter();
         }
     }
 
     @Override
     public void onSearchContactListRequested() {
-        String valueSearched = view.getTfFilter();
+        String valueSearched = view.getTablePanel().getTfFilter();
 
         if(valueSearched != null){
             model.filterContactsOfContactList(valueSearched);
