@@ -1,11 +1,7 @@
 package com.View;
 
-import com.Model.Contact;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 
 public class ContactView extends JFrame {
@@ -37,7 +33,7 @@ public class ContactView extends JFrame {
     public void addContactViewListener(ContactViewListener listener){
         this.listeners.add(listener);
 
-        formPanel.addBtnSendListener(e -> listener.onAddContactRequested());
+        formPanel.addBtnSendListener(e -> listener.onSaveContactRequested());
 
         tablePanel.addBtnClearListener(e -> listener.onClearContactListRequested());
         tablePanel.addBtnSearchListener(e -> listener.onSearchContactListRequested());

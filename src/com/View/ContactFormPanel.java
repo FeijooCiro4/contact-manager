@@ -67,6 +67,24 @@ public class ContactFormPanel extends JPanel {
         return tfMail.getText();
     }
 
+    public void setTextFieldForm(String name, String phone, String mail){
+        this.tfName.setText(name);
+        this.tfPhone.setText(phone);
+        this.tfMail.setText(mail);
+    }
+
+    public void setTextToBtnSend(boolean isModify){
+        if(isModify){
+            this.btnSend.setText("Actualizar");
+        } else {
+            this.btnSend.setText("Agregar");
+        }
+    }
+
+    public String getTextOfBtnSend(){
+        return btnSend.getText();
+    }
+
     public void clearInputFields() {
         tfName.setText("");
         tfPhone.setText("");

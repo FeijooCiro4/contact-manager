@@ -13,6 +13,8 @@ public class SendContactController implements ContactModelListener, ContactViewL
     private ContactView view;
     private ContactList model;
 
+    private boolean isEditing;
+
     public SendContactController(ContactList model, ContactView view){
         this.model = model;
         this.view = view;
@@ -20,28 +22,23 @@ public class SendContactController implements ContactModelListener, ContactViewL
         this.model.addContactListener(this);
         this.view.addContactViewListener(this);
 
+        this.isEditing = false;
+
         view.getTablePanel().displayContactTable(model.getContactList());
+    }
+
+    @Override
+    public void onSaveContactRequested() {
+        if(isEditing){
+            onModifyContactFromContactListRequested();
+        } else {
+            onAddContactRequested();
+        }
     }
 
     @Override
     public void onContactChanged(ArrayList<Contact> contacts) {
         view.getTablePanel().displayContactTable(contacts);
-    }
-
-    @Override
-    public void onAddContactRequested() {
-        String txtName = view.getFormPanel().getTfName();
-        String txtPhone = view.getFormPanel().getTfPhone();
-        String txtMail = view.getFormPanel().getTfMail();
-
-        if(!validData(txtName, txtPhone, txtMail)){
-            this.view.getFormPanel().setTextErrorToLabelInput();
-            return;
-        }
-
-        this.view.getFormPanel().setTextNotErrorToLabelInput();
-        this.model.addContact(txtName, txtPhone, txtMail);
-        view.getFormPanel().clearInputFields();
     }
 
     @Override
@@ -58,51 +55,13 @@ public class SendContactController implements ContactModelListener, ContactViewL
     @Override
     public void onChangeContactRequested(int idContact) {
         String newName = model.getContactFromListWhitId(idContact).getName();
-        String newPhone = model.getContactFromListWhitId(idContact).getPhone();;
+        String newPhone = model.getContactFromListWhitId(idContact).getPhone();
         String newMail = model.getContactFromListWhitId(idContact).getMail();
 
-        if(newName != null && newPhone != null && newMail != null) {
-            StringBuilder dataToChange = new StringBuilder("<html>" +
-                    "<p>DATOS A CAMBIAR</p>" +
-                    "<p>&emsp;&emsp;&emsp; 1. Nombre.</p>" +
-                    "<p>&emsp;&emsp;&emsp; 2. Teléfono.</p>" +
-                    "<p>&emsp;&emsp;&emsp; 3. Mail.</p>" +
-                    "<p>&emsp;&emsp;&emsp; 0. Salir.</p>" +
-                    "<p>Ingrese una opción:</p>" +
-                    "</html>");
-
-            try {
-                int optionChange;
-                do {
-                    optionChange = Integer.parseInt(JOptionPane.showInputDialog(view, dataToChange));
-
-                    switch (optionChange) {
-                        case 1:
-                            newName = JOptionPane.showInputDialog(view, "Ingrese el nuevo nombre.");
-                            break;
-                        case 2:
-                            newPhone = JOptionPane.showInputDialog(view, "Ingrese el nuevo teléfono.");
-                            break;
-                        case 3:
-                            newMail = JOptionPane.showInputDialog(view, "Ingrese el nuevo mail.");
-                            break;
-                        case 0:
-                            break;
-                        default:
-                            JOptionPane.showMessageDialog(view, "Opción inváida");
-                            break;
-                    }
-                } while (optionChange != 0);
-
-                if (validData(newName, newPhone, newMail) && !model.modifyContactFromList(newName, newPhone, newMail, idContact)) {
-                    JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
-                }
-            } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
-            }
-        } else {
-            JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
-        }
+        this.view.getFormPanel().setTextFieldForm(newName, newPhone, newMail);
+        this.view.getFormPanel().setTextToBtnSend(true);
+        this.model.setIdOfContactToChange(idContact);
+        setEditing(true);
     }
 
     @Override
@@ -125,6 +84,48 @@ public class SendContactController implements ContactModelListener, ContactViewL
         } else {
             model.setFilterActive(false);
         }
+    }
+
+    public void onAddContactRequested() {
+        String txtName = view.getFormPanel().getTfName();
+        String txtPhone = view.getFormPanel().getTfPhone();
+        String txtMail = view.getFormPanel().getTfMail();
+
+        if(!validData(txtName, txtPhone, txtMail)){
+            this.view.getFormPanel().setTextErrorToLabelInput();
+            return;
+        }
+
+        this.view.getFormPanel().setTextNotErrorToLabelInput();
+
+        if(view.getFormPanel().getTextOfBtnSend().equals("Agregar")){
+            this.model.addContact(txtName, txtPhone, txtMail);
+        }
+
+        view.getFormPanel().clearInputFields();
+    }
+
+    public void onModifyContactFromContactListRequested() {
+        String txtName = view.getFormPanel().getTfName();
+        String txtPhone = view.getFormPanel().getTfPhone();
+        String txtMail = view.getFormPanel().getTfMail();
+
+        if(!validData(txtName, txtPhone, txtMail)){
+            this.view.getFormPanel().setTextErrorToLabelInput();
+            return;
+        }
+
+        this.view.getFormPanel().setTextNotErrorToLabelInput();
+
+        if(view.getFormPanel().getTextOfBtnSend().equals("Actualizar")){
+            this.model.modifyContactFromList(txtName, txtPhone, txtMail, this.model.getIdOfContactToChange());
+            this.view.getFormPanel().setTextToBtnSend(false);
+        } else {
+            JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
+        }
+
+        this.view.getFormPanel().clearInputFields();
+        setEditing(false);
     }
 
     private boolean validData(String name, String phone, String mail){
@@ -172,5 +173,9 @@ public class SendContactController implements ContactModelListener, ContactViewL
         }
 
         return isValid;
+    }
+
+    private void setEditing(boolean value){
+        this.isEditing = value;
     }
 }

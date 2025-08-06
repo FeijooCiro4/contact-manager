@@ -8,6 +8,7 @@ public class ContactList{
     private ArrayList<Contact> contactsFilter;
     private ArrayList<ContactModelListener> listeners;
     private boolean isFilterActive;
+    private int idOfContactToChange;
 
     public ContactList(){
         this.contacts = new ArrayList<>();
@@ -256,5 +257,13 @@ public class ContactList{
         for(ContactModelListener listener : listeners){
             listener.onContactChanged(currentContacts);
         }
+    }
+
+    public void setIdOfContactToChange(int id){
+        this.idOfContactToChange = id;
+    }
+
+    public int getIdOfContactToChange(){
+        return idOfContactToChange;
     }
 }
