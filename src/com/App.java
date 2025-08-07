@@ -1,6 +1,6 @@
 package com;
 
-import com.Controller.SendContactController;
+import com.Controller.ContactController;
 import com.Model.ContactList;
 import com.View.ContactView;
 
@@ -11,7 +11,7 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             ContactView view = new ContactView();
             ContactList model = new ContactList();
-            SendContactController controller = new SendContactController(model, view);
+            ContactController controller = new ContactController(model, view);
             view.setVisible(true);
         });
     }

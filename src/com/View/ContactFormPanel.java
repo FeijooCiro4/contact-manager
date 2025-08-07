@@ -1,6 +1,7 @@
 package com.View;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -99,5 +100,29 @@ public class ContactFormPanel extends JPanel {
     public void setTextNotErrorToLabelInput(){
         lblInputError.setText("");
         lblInputError.setForeground(Color.white);
+    }
+
+    public void setColorOnNameTextField(boolean isErrorColor){
+        if(isErrorColor){
+            this.tfName.setBorder(new LineBorder(Color.red));
+        } else {
+            this.tfName.setBorder(new JTextField().getBorder());
+        }
+    }
+
+    public void setColorOnPhoneTextField(boolean isErrorColor){
+        if(isErrorColor){
+            this.tfPhone.setBorder(new LineBorder(Color.red));
+        } else {
+            this.tfPhone.setBorder(new JTextField().getBorder());
+        }
+    }
+
+    public void setColorOnMailTextField(boolean isErrorColor){
+        if(isErrorColor){
+            this.tfMail.setBorder(new LineBorder(Color.red));
+        } else {
+            this.tfMail.setBorder(new JTextField().getBorder());
+        }
     }
 }

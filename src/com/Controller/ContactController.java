@@ -9,13 +9,13 @@ import com.View.ContactViewListener;
 import javax.swing.*;
 import java.util.ArrayList;
 
-public class SendContactController implements ContactModelListener, ContactViewListener {
+public class ContactController implements ContactModelListener, ContactViewListener {
     private ContactView view;
     private ContactList model;
 
     private boolean isEditing;
 
-    public SendContactController(ContactList model, ContactView view){
+    public ContactController(ContactList model, ContactView view){
         this.model = model;
         this.view = view;
 
@@ -28,17 +28,30 @@ public class SendContactController implements ContactModelListener, ContactViewL
     }
 
     @Override
-    public void onSaveContactRequested() {
-        if(isEditing){
-            onModifyContactFromContactListRequested();
-        } else {
-            onAddContactRequested();
-        }
+    public void onContactChanged(ArrayList<Contact> contacts) {
+        view.getTablePanel().displayContactTable(contacts);
     }
 
     @Override
-    public void onContactChanged(ArrayList<Contact> contacts) {
-        view.getTablePanel().displayContactTable(contacts);
+    public void onSaveContactRequested() {
+        String txtName = view.getFormPanel().getTfName();
+        String txtPhone = view.getFormPanel().getTfPhone();
+        String txtMail = view.getFormPanel().getTfMail();
+
+        if(!validData(txtName, txtPhone, txtMail)){
+            this.view.getFormPanel().setTextErrorToLabelInput();
+            return;
+        }
+
+        this.view.getFormPanel().setTextNotErrorToLabelInput();
+
+        if(isEditing){
+            modifyContactFromContactList(txtName, txtPhone, txtMail);
+        } else {
+            addContactOnContactList(txtName, txtPhone, txtMail);
+        }
+
+        this.view.getFormPanel().clearInputFields();
     }
 
     @Override
@@ -86,37 +99,15 @@ public class SendContactController implements ContactModelListener, ContactViewL
         }
     }
 
-    public void onAddContactRequested() {
-        String txtName = view.getFormPanel().getTfName();
-        String txtPhone = view.getFormPanel().getTfPhone();
-        String txtMail = view.getFormPanel().getTfMail();
-
-        if(!validData(txtName, txtPhone, txtMail)){
-            this.view.getFormPanel().setTextErrorToLabelInput();
-            return;
-        }
-
-        this.view.getFormPanel().setTextNotErrorToLabelInput();
-
+    private void addContactOnContactList(String txtName, String txtPhone, String txtMail) {
         if(view.getFormPanel().getTextOfBtnSend().equals("Agregar")){
             this.model.addContact(txtName, txtPhone, txtMail);
+        } else {
+            JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
         }
-
-        view.getFormPanel().clearInputFields();
     }
 
-    public void onModifyContactFromContactListRequested() {
-        String txtName = view.getFormPanel().getTfName();
-        String txtPhone = view.getFormPanel().getTfPhone();
-        String txtMail = view.getFormPanel().getTfMail();
-
-        if(!validData(txtName, txtPhone, txtMail)){
-            this.view.getFormPanel().setTextErrorToLabelInput();
-            return;
-        }
-
-        this.view.getFormPanel().setTextNotErrorToLabelInput();
-
+    private void modifyContactFromContactList(String txtName, String txtPhone, String txtMail) {
         if(view.getFormPanel().getTextOfBtnSend().equals("Actualizar")){
             this.model.modifyContactFromList(txtName, txtPhone, txtMail, this.model.getIdOfContactToChange());
             this.view.getFormPanel().setTextToBtnSend(false);
@@ -124,12 +115,18 @@ public class SendContactController implements ContactModelListener, ContactViewL
             JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
         }
 
-        this.view.getFormPanel().clearInputFields();
         setEditing(false);
     }
 
     private boolean validData(String name, String phone, String mail){
-        return !name.isEmpty() && !phone.isEmpty() && !mail.isEmpty() && isValidPhone(phone) && isValidMail(mail);
+        boolean isValidPhone = isValidPhone(phone);
+        boolean isValidMail = isValidMail(mail);
+
+        this.view.getFormPanel().setColorOnNameTextField(name.isEmpty());
+        this.view.getFormPanel().setColorOnPhoneTextField(phone.isEmpty() || !isValidPhone);
+        this.view.getFormPanel().setColorOnMailTextField(mail.isEmpty() || !isValidMail);
+
+        return !name.isEmpty() && !phone.isEmpty() && !mail.isEmpty() && isValidPhone && isValidMail;
     }
 
     private boolean isValidPhone(String phone){
