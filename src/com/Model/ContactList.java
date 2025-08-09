@@ -6,12 +6,16 @@ import java.util.Random;
 public class ContactList{
     private ArrayList<Contact> contacts;
     private ArrayList<Contact> contactsFilter;
+    private ContactDAO contactDAO;
+
     private ArrayList<ContactModelListener> listeners;
+
     private boolean isFilterActive;
     private int idOfContactToChange;
 
     public ContactList(){
-        this.contacts = new ArrayList<>();
+        this.contactDAO = new ContactDAO();
+        this.contacts = contactDAO.getAllContacts();
         this.contactsFilter = new ArrayList<>();
         this.listeners = new ArrayList<>();
         this.isFilterActive = false;
@@ -60,12 +64,18 @@ public class ContactList{
 
     public void addContact(String name, String phone, String mail) {
         Contact contact = new Contact(name, phone, mail);
-        setIdContact(contact);
-        this.contacts.add(contact);
-        notifyListeners();
+        //setIdContact(contact);
+
+        int generatedId = this.contactDAO.insertContact(contact);
+
+        if(generatedId != -1) {
+            contact.setExistingIdContact(generatedId);
+            this.contacts.add(contact);
+            notifyListeners();
+        }
     }
 
-    private void setIdContact(Contact contact){
+    /*private void setIdContact(Contact contact){
         int idTemp;
         boolean elementInList;
 
@@ -88,7 +98,7 @@ public class ContactList{
         }
 
         return false;
-    }
+    }*/
 
     public boolean modifyContactFromList(String name, String phone, String mail, int idContactToSearch){
         boolean modificationSuccessful, modificationFilteredListSuccessful;
@@ -115,6 +125,7 @@ public class ContactList{
                 contact.setExistingIdContact(idContactToSearch);
 
                 this.contacts.set(indexOfContactSearched, contact);
+                this.contactDAO.updateContact(contact);
                 modificationSuccessful = true;
             } else {
                 modificationSuccessful = false;
@@ -170,6 +181,7 @@ public class ContactList{
 
             if (indexOfContactSearched >= 0) {
                 this.contacts.remove(indexOfContactSearched);
+                this.contactDAO.deleteContact(idContactToDelete);
                 deletionSuccessful = true;
             } else {
                 deletionSuccessful = false;
@@ -219,6 +231,7 @@ public class ContactList{
             setFilterActive(false);
         } else {
             this.contacts.clear();
+            this.contactDAO.clearAllContacts();
             notifyListeners();
         }
     }
@@ -227,6 +240,7 @@ public class ContactList{
         for(int i=0; i<contacts.size(); i++){
             for (Contact contactFiltered : contactsFilter) {
                 if (contacts.get(i).getIdContact() == contactFiltered.getIdContact()) {
+                    this.contactDAO.deleteContact(contacts.get(i).getIdContact());
                     this.contacts.remove(i);
                 }
             }
