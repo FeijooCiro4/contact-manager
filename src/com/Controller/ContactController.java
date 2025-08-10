@@ -109,7 +109,9 @@ public class ContactController implements ContactModelListener, ContactViewListe
 
     private void modifyContactFromContactList(String txtName, String txtPhone, String txtMail) {
         if(view.getFormPanel().getTextOfBtnSend().equals("Actualizar")){
-            this.model.modifyContactFromList(txtName, txtPhone, txtMail, this.model.getIdOfContactToChange());
+            if(!this.model.modifyContactFromList(txtName, txtPhone, txtMail, this.model.getIdOfContactToChange())){
+                JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
+            }
             this.view.getFormPanel().setTextToBtnSend(false);
         } else {
             JOptionPane.showMessageDialog(view, "Ha ocurrido un error");
