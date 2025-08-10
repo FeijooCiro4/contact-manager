@@ -5,7 +5,10 @@ import java.util.ArrayList;
 
 public class ContactDAO {
     private Connection connect(){
-        String url = "jdbc:sqlite:contact.db";
+        String userHome = System.getProperty("user.home");
+        String dbPath = userHome + "/contact.db";
+
+        String url = "jdbc:sqlite:" + dbPath;
         String sql = "CREATE TABLE IF NOT EXISTS contact (\n"
                 + " id INTEGER PRIMARY KEY,\n"
                 + " name TEXT NOT NULL,\n"
