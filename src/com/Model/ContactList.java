@@ -1,7 +1,6 @@
 package com.Model;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class ContactList{
     private ArrayList<Contact> contacts;
@@ -44,10 +43,6 @@ public class ContactList{
         return new ArrayList<>(contacts);
     }
 
-    public Contact getContactFromList(int index){
-        return contacts.get(index);
-    }
-
     public Contact getContactFromListWhitId(int idContact){
         for(Contact contact : contacts){
             if(contact.getIdContact() == idContact){
@@ -74,31 +69,6 @@ public class ContactList{
             notifyListeners();
         }
     }
-
-    /*private void setIdContact(Contact contact){
-        int idTemp;
-        boolean elementInList;
-
-        do{
-            Random rand = new Random();
-            idTemp = Math.abs(rand.nextInt());
-            elementInList = isContactInList(idTemp);
-        } while(elementInList);
-
-        contact.setExistingIdContact(idTemp);
-    }
-
-    public boolean isContactInList(int idContactToSearch){
-        if(contacts != null) {
-            for (Contact contact : contacts) {
-                if (contact.getIdContact() == idContactToSearch) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }*/
 
     public boolean modifyContactFromList(String name, String phone, String mail, int idContactToSearch){
         boolean modificationSuccessful, modificationFilteredListSuccessful;
@@ -245,19 +215,6 @@ public class ContactList{
                 }
             }
         }
-    }
-
-    public String getListOfContactList(){
-        StringBuilder showData = new StringBuilder();
-
-        if (!contacts.isEmpty()) {
-            for (Contact contact : contacts) {
-                showData.append("Nombre: ").append(contact.getName()).append(" - Teléfono: ")
-                        .append(contact.getPhone()).append(" - Mail: ").append(contact.getMail());
-            }
-        }
-
-        return  showData.toString();
     }
 
     public void notifyListeners(){

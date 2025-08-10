@@ -13,7 +13,6 @@ public class ContactTablePanel extends JPanel {
     private JTextField tfFilter;
     private JButton btnClear, btnSearch;
     private JTable tblContacts;
-    private JScrollPane scrollPane;
 
     private CustomContactTableModel tableModel;
 
@@ -27,7 +26,7 @@ public class ContactTablePanel extends JPanel {
 
         tableModel = new CustomContactTableModel();
         tblContacts.setModel(tableModel);
-        scrollPane = new JScrollPane(tblContacts);
+        JScrollPane scrollPane = new JScrollPane(tblContacts);
 
         JPanel filterPanel = new JPanel(new BorderLayout());
         filterPanel.add(tfFilter, BorderLayout.WEST);
