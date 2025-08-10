@@ -1,3 +1,3 @@
 @echo off
-java -jar contactManager.jar
+java -jar contact-manager.jar
 pause
