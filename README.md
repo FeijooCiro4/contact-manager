@@ -23,6 +23,6 @@ Haz doble "click" en el archivo `run.bat`. Este ejecutará el archivo `contact-m
 
 ### Otra opción
 Si tienes otro sistema operativo, o el archivo `run.bat` no funciona, puedes probar con el siguiente comando dentro de la carpeta `contact-manager`:
-````
+```
 java -jar contactManager.jar
 ```
